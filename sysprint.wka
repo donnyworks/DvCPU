@@ -1,0 +1,20 @@
+.init:
+	jmp .main
+.printch:
+	SCL #0001
+	rts
+.printstring:
+	nop
+	STA .string
+	jmp .printch
+	nop
+.main:
+	nop
+	nop
+	nop
+	nop
+	nop
+	jmp .printstring
+	hlt
+.string:
+	db "Hello, World!"

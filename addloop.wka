@@ -1,0 +1,4 @@
+.start:
+	ADD #FFA0
+.explosives:
+	JMP .start
