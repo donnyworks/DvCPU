@@ -5,16 +5,28 @@
 	rts
 .printstring:
 	nop
-	STA .string
+	//STA .string
+	//jmp .printch
+	STA #20
+	jmp .printch
+	STA #0A
 	jmp .printch
 	nop
+	rts
 .main:
 	nop
 	nop
 	nop
 	nop
 	nop
+	nop
+	//STA #30
+	//jmp .printch
 	jmp .printstring
+	nop
 	hlt
+	nop
+	nop
+	nop
 .string:
 	db "Hello, World!"

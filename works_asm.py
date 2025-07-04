@@ -19,7 +19,7 @@ for n in indata:
         headers[i.replace(".","").replace(":","")] = cmpos - 1
     if i.lower() == "jie":
         cmpos += 4
-        print(i.lower())
+        #print(i.lower())
     if i.lower() == "db":
         outfda = n.split(' ',1)[1]
         fsd = outfda.replace('"','')
@@ -48,7 +48,7 @@ for n in indata:
         data += int(x[1].replace("$","").replace("#",""),base=16).to_bytes(2,"big")
         data += int(x[2].replace("$","").replace("#",""),base=16).to_bytes(2,"big")
         cmpos += 4
-        print(i.lower())
+        #print(i.lower())
     if i.lower() == "db":
         outfda = n.split(' ',1)[1]
         fsd = outfda.replace('"','')
@@ -64,15 +64,15 @@ for n in indata:
             data += operations[i.lower()][1]
         if x[1].startswith("."):
             x[1] = str(headers[x[1].replace('.',"")])
-            if i.lower() == "jmp": data += operations[i.lower()][1]
-            if i.lower() != "jmp": data += operations[i.lower()][0]
+            if i.lower() == "jmp": data += operations[i.lower()][0]
+            if i.lower() != "jmp": data += operations[i.lower()][1]
             data += int(x[1]).to_bytes(2,"big")
-            print("Ref header at " + x[1])
+            #print("Ref header at " + x[1])
         else:
             data += int(x[1].replace("$","").replace("#",""),base=16).to_bytes(2,"big")
-        print("Add two from " + i)
+        #print("Add two from " + i)
         cmpos += 2
-    print(cmpos)
+    #print(cmpos)
     cmpos += 1
 out.write(data_dbg)
 out.close()

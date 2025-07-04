@@ -54,12 +54,14 @@ try:
             t += memory[param]
             pc += 2
         elif op == 0x05:
+            #print("Jump (Local Space)")
             param = (memory[pc + 1]*16) + memory[pc + 2]
-            stack.append(pc - 1)
+            stack.append(pc + 2)
             pc = program_alloc - 1 + param
         elif op == 0xF5:
+            #print("Jump (Memory Space)")
             param = (memory[pc + 1]*16) + memory[pc + 2]
-            stack.append(pc - 1)
+            stack.append(pc + 2)
             pc = param - 1
         elif op == 0x10 or op == 0xFF:
             if op == 0x10:
@@ -80,6 +82,7 @@ try:
             print("System HALT")
             running = False
         elif op == 0x11:
+            #print("Return from Subroutine")
             pc = stack[len(stack) - 1]
             stack.pop()
         else:
@@ -87,8 +90,20 @@ try:
         pc += 1
 except:
     print("WVM crashed! A [non]detailed stack trace is available. (Top = earliest, bottom = latest)")
-    #for i in stack:
-    #    print(i)
+    try:
+        symbols = open(sys.argv[1].replace(".bin",".dbg")).read().split("\n")
+    except:
+        print("Failed to load debug symbols.")
+        symbols = []
+    for i in stack:
+        toprint = str(i-program_alloc)
+        for sym in symbols:
+            if sym != "":
+                if len(sym.split("=")) > 1:
+                    d = sym.split("=")
+                    if int(d[1]) == i-program_alloc or int(d[1]) == i-program_alloc+1:
+                        toprint = d[0]
+        print(toprint)
     print("Buffers:")
     print(b0, b1, b2, b3, t)
     a = open("allocated.bin","wb")
