@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
 
 // WorksVKM Emulator (ported from Python)
 
@@ -31,7 +32,7 @@ int main(int argc, char **argv) {
         printf("Usage: emulator [program bin]");
         return -1;
     }
-    long file_size;
+    long filelen;
     //printf(argv[1]);
     FILE *fptr = fopen(argv[1], "rb");
     if (fptr == NULL) {
@@ -39,39 +40,34 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    // Determine the file size
     fseek(fptr, 0, SEEK_END);
-    file_size = ftell(fptr);
-    fseek(fptr, 0, SEEK_SET);
-    if (fptr == NULL) {
-        perror("Failed to open");
-        return -1;
-    }
-    program = (unsigned char *)malloc(file_size);
+    filelen = ftell(fptr);
+    rewind(fptr);
+
+    // Allocate memory for the program
+    program = (char *)malloc(filelen * sizeof(char));
     if (program == NULL) {
-        perror("Memory allocation failed");
-        //fclose(fptr);
-        return -1;
+        perror("Error allocating memory");
+        fclose(fptr);
+        return 1;
     }
+
+    // Read the file into the program
+    fread(program, filelen, 1, fptr);
+
+    // Close the file
     fclose(fptr);
-    size_t bytes_read = fread(program, 1, file_size, fptr);
-    if (bytes_read != file_size) {
-        fprintf(stderr, "Error reading file: read %zu bytes, expected %ld\n", bytes_read, file_size);
-        free(program);
-        //fclose(fptr);
-        return -1;
-    }
-    for (int i = 0; i < (file_size < 10 ? file_size : 10); i++) {
-        printf("%d ", program[i]);
-    }
-    for (int n = 0; n < file_size; n++) {
-        printf("hi");
+    //for (int i = 0; i < (filelen < 10 ? filelen : 10); i++) {
+    //    printf("%d ", program[i]);
+    //}
+    for (int n = 0; n < filelen; n++) {
+        //printf("hi");
         memory[program_alloc + n] = program[n];
     }
     while (pc < malloc_max) {
         int op = memory[pc];
         int param;
-        //printf("PC: %i\n", pc);
+        //printf("PC: %i\n", program_alloc - pc);
         //printf("OP: %i\n", op);
         //todo: emulator bullshit
         //printf("todo: emulator\n");
@@ -110,14 +106,100 @@ int main(int argc, char **argv) {
             t += memory[param];
         } else if (op == 0x05) {
             param = (memory[pc + 1]*16) + memory[pc + 2];
+            //printf("Lightspeed to %i!\n",param);
+            //printf("Localspace jump\n");
             stackIndex++;
             stack[stackIndex] = pc + 2;
-            pc = program_alloc - 1 + param;
+            pc = program_alloc + param - 1;
+            //printf("%i\n", pc - program_alloc);
         } else if (op == 0xF5) {
-            param = memory[(memory[pc + 1]*16) + memory[pc + 2]];
+            param = (memory[pc + 1]*16) + memory[pc + 2];
+            //printf("Lightspeed to %i!\n",param);
             stackIndex++;
             stack[stackIndex] = pc + 2;
             pc = param - 1;
+        } else if (op == 0x06) {
+            param = (memory[pc + 1]*16) + memory[pc + 2];
+            int param2 = (memory[pc + 3]*16) + memory[pc + 4];
+            if (param == t) {
+                stackIndex++;
+                stack[stackIndex] = pc + 2;
+                pc = program_alloc - 1 + param2;
+            }
+            pc += 2;
+        } else if (op == 0xE6) {
+            param = memory[(memory[pc + 1]*16) + memory[pc + 2]];
+            int param2 = (memory[pc + 3]*16) + memory[pc + 4];
+            if (param == t) {
+                stackIndex++;
+                stack[stackIndex] = pc + 2;
+                pc = param2 - 1;
+            }
+            pc += 2;
+        } else if (op == 0x07) {
+            param = (memory[pc + 1]*16) + memory[pc + 2];
+            b0 = param;
+            pc += 2;
+        } else if (op == 0xF7) {
+            param = memory[(memory[pc + 1]*16) + memory[pc + 2]];
+            b0 = param;
+            pc += 2;
+        } else if (op == 0x08) {
+            param = (memory[pc + 1]*16) + memory[pc + 2];
+            b1 = param;
+            pc += 2;
+        } else if (op == 0xF8) {
+            param = memory[(memory[pc + 1]*16) + memory[pc + 2]];
+            b1 = param;
+            pc += 2;
+        } else if (op == 0x09) {
+            param = (memory[pc + 1]*16) + memory[pc + 2];
+            b2 = param;
+            pc += 2;
+        } else if (op == 0xF9) {
+            param = memory[(memory[pc + 1]*16) + memory[pc + 2]];
+            b2 = param;
+            pc += 2;
+        } else if (op == 0x0A) {
+            param = (memory[pc + 1]*16) + memory[pc + 2];
+            b3 = param;
+            pc += 2;
+        } else if (op == 0xFA) {
+            param = memory[(memory[pc + 1]*16) + memory[pc + 2]];
+            b3 = param;
+            pc += 2;
+        } else if (op == 0x0B) {
+            memory[(memory[pc + 1]*16) + memory[pc + 2]] = b0;
+            //b0 = param;
+            pc += 2;
+        } else if (op == 0xFB) {
+            memory[memory[(memory[pc + 1]*16) + memory[pc + 2]]] = b0;
+            //b0 = param;
+            pc += 2;
+        } else if (op == 0x0C) {
+            memory[(memory[pc + 1]*16) + memory[pc + 2]] = b1;
+            //b0 = param;
+            pc += 2;
+        } else if (op == 0xFC) {
+            memory[memory[(memory[pc + 1]*16) + memory[pc + 2]]] = b1;
+            //b0 = param;
+            pc += 2;
+        } else if (op == 0x0D) {
+            memory[(memory[pc + 1]*16) + memory[pc + 2]] = b2;
+            //b0 = param;
+            pc += 2;
+        } else if (op == 0xFD) {
+            memory[memory[(memory[pc + 1]*16) + memory[pc + 2]]] = b2;
+            //b0 = param;
+            pc += 2;
+        } else if (op == 0x0E) {
+            memory[(memory[pc + 1]*16) + memory[pc + 2]] = b3;
+            //b0 = param;
+            pc += 2;
+        } else if (op == 0xFE) {
+            memory[memory[(memory[pc + 1]*16) + memory[pc + 2]]] = b3;
+            //b0 = param;
+            pc += 2;
         } else if (op == 0x0F) {
             pc = malloc_max;
         } else if (op == 0x10 || op == 0xFF) {
@@ -129,16 +211,30 @@ int main(int argc, char **argv) {
                 param = memory[(memory[pc + 1]*16) + memory[pc + 2]];
                 pc += 2;
             }
+            //printf("Stupidity detected.");
             if (param == 0x01) {
-                printf((char)param);
+                //printf("%i",b0);
+                putchar((char)b0);
             }
         } else if (op == 0x11) {
             pc = stack[stackIndex];
             stack[stackIndex] = 0;
             stackIndex--;
+        } else if (op == 0x12 || op == 0xE1) {
+            if (op == 0x12) {
+                param = (memory[pc + 1]*16) + memory[pc + 2];
+                pc += 2;
+            }
+            if (op == 0xE1) {
+                param = memory[(memory[pc + 1]*16) + memory[pc + 2]];
+                pc += 2;
+            }
+            memory[param] = (t - round(t/16)*16);
+            memory[param + 1] = round(t/16);
+            pc += 2;
         }
         pc++;
     }
-    fclose(fptr);
+    //fclose(fptr);
     return 0;
 }

@@ -1,4 +1,4 @@
 #!/bin/bash
 
-gcc emulator.c -fsanitize=address -o emulator
+gcc emulator.c -o emulator
 ./emulator ./sysprint.bin
