@@ -1,3 +1,5 @@
 
+gcc emulator
 asm sysprint.wka
 wvm sysprint.bin
+cvm sysprint.bin

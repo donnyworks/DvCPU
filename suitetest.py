@@ -2,7 +2,7 @@
 
 import sys, os
 
-translation = {"asm":"./works_asm.py","wvm":"./emulator.py"}
+translation = {"asm":"./works_asm.py","wvm":"./emulator.py","gcc":"gcc emualator.c -o ","cvm":"./emulator"}
 
 f = open("tests.txt").read().split("\n")
 
