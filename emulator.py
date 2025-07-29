@@ -47,6 +47,30 @@ try:
             param = (memory[pc + 1]*16) + memory[pc + 2]
             pc += 2
             t += param
+        elif op == 0x02:
+            param = (memory[pc + 1]*16) - memory[pc + 2]
+            pc += 2
+            t += param
+        elif op == 0x03:
+            param = (memory[pc + 1]*16) * memory[pc + 2]
+            pc += 2
+            t += param
+        elif op == 0x04:
+            param = (memory[pc + 1]*16) / memory[pc + 2]
+            pc += 2
+            t += param
+        elif op == 0xF2:
+            param = (memory[pc + 1]*16) - memory[pc + 2]
+            pc += 2
+            t += memory[param]
+        elif op == 0xF3:
+            param = (memory[pc + 1]*16) * memory[pc + 2]
+            pc += 2
+            t += memory[param]
+        elif op == 0xF4:
+            param = (memory[pc + 1]*16) / memory[pc + 2]
+            pc += 2
+            t += memory[param]
         elif op == 0x00:
             pass
         elif op == 0xF1:
@@ -72,6 +96,14 @@ try:
                 pc += 2
             if param == 0x01:
                 print(chr(b0),end='')
+        elif op == 0x12 or op == 0xE1:
+            if op == 0x12:
+                param = (memory[pc + 1]*16) + memory[pc + 2]
+            else:
+                param = memory[(memory[pc + 1]*16) + memory[pc + 2]]
+            memory[param] = (t - round(t/16)*16)
+            memory[param + 1] = round(t/16)
+            pc += 2
         elif op == 0x07: #"sta":[b"\x07",b"\xF7"]
             b0 = (memory[pc + 1]*16) + memory[pc + 2]
             pc += 2
@@ -88,8 +120,10 @@ try:
         else:
             raise Exception("We're all doomed!")
         pc += 1
-except:
+except Exception as e:
     print("WVM crashed! A [non]detailed stack trace is available. (Top = earliest, bottom = latest)")
+    if str(e) == "We're all doomed!":
+        print("Reason of error: Invalid operation, go fuck yourself. (" + str(hex(op)) + ")")
     try:
         symbols = open(sys.argv[1].replace(".bin",".dbg")).read().split("\n")
     except:
@@ -108,8 +142,15 @@ except:
     print(b0, b1, b2, b3, t)
     a = open("allocated.bin","wb")
     data = b""
+    ipos = 0
     for i in memory:
-        data += i.to_bytes(1,"big")
+        try:
+            data += i.to_bytes(1,"big")
+        except:
+            print("Failed to print byte at", ipos)
+            data += b"\xFF"
+            print("Byte:", i)
+        ipos += 1
     a.write(data)
     a.close()
     print("Memory has been dumped to allocated.bin")

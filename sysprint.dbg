@@ -1,5 +1,5 @@
 .init=0
 .printch=4
 .printstring=9
-.main=27
-.string=44
+.main=29
+.string=46

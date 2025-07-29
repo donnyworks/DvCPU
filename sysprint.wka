@@ -5,6 +5,8 @@
 	rts
 .printstring:
 	nop
+	nop
+	nop
 	//STA .string
 	//jmp .printch
 	STA #20

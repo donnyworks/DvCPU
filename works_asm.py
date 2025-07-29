@@ -9,7 +9,7 @@ data = b""
 headers = {}
 cmpos = 0
 data_dbg = ""
-operations = {"add":[b"\x01",b"\xF1"],"sub":[b"\x02",b"\xF2"],"mul":[b"\x03",b"\xF3"],"div":[b"\x04",b"\xF4"],"jmp":[b"\x05",b"\xF5"],"sta":[b"\x07",b"\xF7"],"stb":[b"\x08",b"\xF8"],"stc":[b"\x09",b"\xF9"],"std":[b"\x0A",b"\xFA"],"lda":[b"\x0B",b"\xFB"],"ldb":[b"\x0C",b"\xFC"],"ldc":[b"\x0D",b"\xFD"],"ldd":[b"\x0E",b"\xFE"],"scl":[b"\x10",b"\xFF"],"jie":[b"\x06",b"\xE6"]}
+operations = {"add":[b"\x01",b"\xF1"],"sub":[b"\x02",b"\xF2"],"mul":[b"\x03",b"\xF3"],"div":[b"\x04",b"\xF4"],"jmp":[b"\x05",b"\xF5"],"sta":[b"\x07",b"\xF7"],"stb":[b"\x08",b"\xF8"],"stc":[b"\x09",b"\xF9"],"std":[b"\x0A",b"\xFA"],"lda":[b"\x0B",b"\xFB"],"ldb":[b"\x0C",b"\xFC"],"ldc":[b"\x0D",b"\xFD"],"ldd":[b"\x0E",b"\xFE"],"scl":[b"\x10",b"\xFF"],"jie":[b"\x06",b"\xE6"],"wrt":[b"\x11",b"\xE1"]}
 for n in indata:
     x = n.split(" ")
     i = x[0]
@@ -57,7 +57,7 @@ for n in indata:
         cmpos += len(fsd) + 1
     if i.lower() == "hlt":
         data += b"\x0F"
-    if i.lower() == "add" or i.lower() == "sub" or i.lower() == "mul" or i.lower() == "div" or i.lower() == "jmp" or i.lower() == "sta" or i.lower() == "stb" or i.lower() == "stc" or i.lower() == "std" or i.lower() == "lda" or i.lower() == "ldb" or i.lower() == "ldc" or i.lower() == "ldd" or i.lower() == "scl":
+    if i.lower() == "add" or i.lower() == "sub" or i.lower() == "mul" or i.lower() == "div" or i.lower() == "jmp" or i.lower() == "sta" or i.lower() == "stb" or i.lower() == "stc" or i.lower() == "std" or i.lower() == "lda" or i.lower() == "ldb" or i.lower() == "ldc" or i.lower() == "ldd" or i.lower() == "scl" or i.lower() == "wrt":
         if x[1].startswith("#"):
             data += operations[i.lower()][0]
         if x[1].startswith("$"):
