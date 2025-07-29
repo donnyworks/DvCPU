@@ -236,5 +236,7 @@ int main(int argc, char **argv) {
         pc++;
     }
     //fclose(fptr);
+    // DONNYWORKS - Commenting that out prevents a fault but also causes memory leak
+    // Oh well
     return 0;
 }
